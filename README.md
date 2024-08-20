@@ -6,7 +6,7 @@ These metrics are error rates; a lower value means a larger similarity between t
 Compared to the original repo at https://github.com/amtevaluation/amtevaluation.github.io, this version contains the following changes:
 
 - added Python wrapper functions for the underlying C++ metrics
-- fixed out-of-bounds memory access in the C++ code, which resulted in non-deterministic crashes
+- fixed out-of-bounds memory accesses in the C++ code, which resulted in non-deterministic crashes
 - fixed parsing of MusicXML files created by `music21`, which silently led to incorrect behavior (these files contain a space before closing tags like `<voice>1<voice />` instead of `<voice>1</voice>`)
 
 
@@ -18,20 +18,16 @@ Compared to the original repo at https://github.com/amtevaluation/amtevaluation.
     Proc. 22nd International Society for Music Information Retrieval Conference (ISMIR), 2021.
 
 ## Installation
-### Compile C++ Codebase:
-
-`./compile.sh`
-
 
 ### Install python bindings:
 
-`pip install -e .`
+`pip install .`
 
 ## Usage
 ### From Python:
 
 ```python3
-from muster `mport muster
+from muster import muster
 
 # pass two paths to MusicXML files
 muster('demo/008_EST.xml', 'demo/008_GT.xml')

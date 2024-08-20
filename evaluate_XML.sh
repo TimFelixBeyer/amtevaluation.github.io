@@ -9,10 +9,7 @@ I1=$1
 I2=$2
 I3=$3
 
-CurFol=$(cd $(dirname $0); pwd)
-PFol=${CurFol}/Programs
-# PFol="./Programs"
-# CurFol="."
+PFol="./Programs"
 
 $PFol/MusicXMLToTrx ${I2}.xml ${I2}_trx.txt
 

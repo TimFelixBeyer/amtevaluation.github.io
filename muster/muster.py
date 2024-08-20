@@ -102,7 +102,7 @@ def handle_score_file(score, out_path, clean_scores):
             score.write("musicxml", out_path, makeNotation=False)
         except musicxml.xmlObjects.MusicXMLExportException as e:
             raise ValueError(f"MusicXML export error: {e}")
-    elif isinstance(score, (str, Path)) and score.suffix in [".musicxml", ".xml"]:
+    elif isinstance(score, (str, Path)) and Path(score).suffix in [".musicxml", ".xml"]:
         shutil.copyfile(score, out_path)
     else:
         raise ValueError("Invalid file type or extension. Must be .musicxml or .xml")
