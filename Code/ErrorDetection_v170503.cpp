@@ -173,20 +173,31 @@ int main(int argc, char** argv){
 		LP[i]+=((i==hmmID_noteID[0][0])? 0:-1);
 	}//endfor i
 
-	for(int n=1;n<hmmID_noteID.size();n+=1){
-		vector<double> prevLP(LP);
-		for(int i=0;i<numHMMState;i+=1){//j->i
-			LP[i]=prevLP[i];
-			amax[n][i]=i;
-			for(int j=0;j<i;j+=1){
-				if(prevLP[j]>LP[i]){
-					LP[i]=prevLP[j];
-					amax[n][i]=j;
-				}//endif
-			}//endfor j
-			LP[i]+=((i==hmmID_noteID[n][0])? 0:-1);
-		}//endfor i
-	}//endfor n
+	vector<double> prevLP(LP.size()); // Allocate once, outside the loop.
+	for(int n = 1; n < hmmID_noteID.size(); ++n) {
+		std::copy(LP.begin(), LP.end(), prevLP.begin()); // Copy LP to prevLP
+		double maxPrevLP = -std::numeric_limits<double>::infinity(); // Initialize to a very low value
+		int maxIndex = -1; // Initialize to an invalid index
+
+		for(int i = 0; i < numHMMState; ++i) {
+			LP[i] = prevLP[i];
+			amax[n][i] = i; // Assume the current state is the best previous state
+
+			if(i > 0 && prevLP[i-1] > maxPrevLP) { // Update maxPrevLP and maxIndex if a new max is found
+				maxPrevLP = prevLP[i-1];
+				maxIndex = i-1;
+			}
+
+			if(maxPrevLP > LP[i]) { // Use the maxPrevLP if it's better than the current LP[i]
+				LP[i] = maxPrevLP;
+				amax[n][i] = maxIndex;
+			}
+
+			if (hmmID_noteID[n][0] != i) {
+				LP[i] -= 1; // Apply penalty for state mismatch
+			}
+		}
+	}
 
 	vector<int> opt(hmmID_noteID.size());
 {

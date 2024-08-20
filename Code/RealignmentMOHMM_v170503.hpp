@@ -91,16 +91,23 @@ public:
 	void SetOutProb(){
 		outProb.P.assign(128,0.000001);
 		for(int i=0;i<pitches.size();i+=1){
-			outProb.P[pitches[i]]+=0.95;
-			outProb.P[pitches[i]+1]+=0.0075;//0.015/2.
-			outProb.P[pitches[i]-1]+=0.0075;
-			outProb.P[pitches[i]+2]+=0.011;//0.022/2.
-			outProb.P[pitches[i]-2]+=0.011;
-			outProb.P[pitches[i]+12]+=0.00235;//0.0047/2.
-			outProb.P[pitches[i]-12]+=0.00235;
-			for(int dp=3;dp<12;dp+=1){
-				outProb.P[pitches[i]-dp]+=0.00046111111;//0.0083/9./2.
-				outProb.P[pitches[i]+dp]+=0.00046111111;
+			if (pitches[i]<0 || pitches[i]>127) continue;
+
+			outProb.P[pitches[i]]+=0.95; // Safe, already checked
+
+			// For each modified index, check if it's within the bounds of 0 and 127 before accessing
+			if (pitches[i] + 1 <= 127) outProb.P[pitches[i] + 1] += 0.0075;
+			if (pitches[i] - 1 >= 0) outProb.P[pitches[i] - 1] += 0.0075;
+
+			if (pitches[i] + 2 <= 127) outProb.P[pitches[i] + 2] += 0.011;
+			if (pitches[i] - 2 >= 0) outProb.P[pitches[i] - 2] += 0.011;
+
+			if (pitches[i] + 12 <= 127) outProb.P[pitches[i] + 12] += 0.00235;
+			if (pitches[i] - 12 >= 0) outProb.P[pitches[i] - 12] += 0.00235;
+
+			for(int dp=3; dp<12; dp+=1){
+				if (pitches[i] + dp <= 127) outProb.P[pitches[i] + dp] += 0.00046111111;//0.0083/9./2.
+				if (pitches[i] - dp >= 0) outProb.P[pitches[i] - dp] += 0.00046111111;
 			}//endfor dp
 		}//endfor i
 		outProb.Normalize();
@@ -494,7 +501,7 @@ iL=(((i/2)/Nh)/NStates[0])%NStates[1]
 
 								j=2*(j_h+Nh*(iR));
 //								logP=preLP[j]+partHMMs[1].iniProb.LP[iL]+facGauss-0.5*pow((ontimes[n]-ontimes[0]-(partHMMs[0].states[iL].reftime-partHMMs[0].states[iR].reftime))/sig_t,2.);//tau(iL)->tau(iR)
-								logP=preLP[j]+partHMMs[1].iniProb.LP[iL]+facGauss2-0.5*pow((ontimes[n]-ontimes[0]-(partHMMs[0].states[iL].reftime-partHMMs[0].states[iR].reftime))/sig_t2,2.);//tau(iL)->tau(iR)
+								logP=preLP[j]+partHMMs[1].iniProb.LP[iL]+facGauss2-0.5*pow((ontimes[n]-ontimes[0]-(partHMMs[1].states[iL].reftime-partHMMs[0].states[iR].reftime))/sig_t2,2.);//tau(iL)->tau(iR)
 
 								if(logP>LP[i]){LP[i]=logP; amax[n][i]=j;}
 
@@ -795,7 +802,7 @@ cout<<endl;
 							for(int j=1;j<i;j+=1){
 								logP=preLP[j];
 								if(logP>LP[i]){LP[i]=logP;amax[t][i]=j;}//endif
-							}//endfor j					
+							}//endfor j
 							LP[i]+=pitchProb.P[perfmClusterContent[PCIDs[i-1]].pitch-scoreClusterContent[SCIDs[t]].pitch+128];
 						}//endfor i
 

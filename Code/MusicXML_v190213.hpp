@@ -130,43 +130,40 @@ public:
 		bool isInBracket=false;
 		int depth=0;
 		for(int i=0;i<all.size();i+=1){
-				if (all[i] == '<')
+			if (all[i] == '<') {
+				isInBracket = true;
+				if (all[i + 1] == '/')
 				{
-					isInBracket = true;
-					if (all[i + 1] == '/')
-					{
-						depth -= 1;
-					}
-					else if (all[i + 1] == '!' || all[i + 1] == '?') {;}
-					else
-					{
-						depth += 1;
-					} // endif
-					evt.content = s[0];
-					evt.depth = depth;
-					evt.type = 0;
-					evts.push_back(evt);
-					s[0] = "";
-					continue;
+					depth -= 1;
 				}
-				else if (all[i] == '>')
+				else if (all[i + 1] == '!' || all[i + 1] == '?') {;}
+				else
 				{
-					isInBracket = false;
-					if (all[i - 1] == '/')
-					{
-						depth -= 1;
-					}
-					// deal with space before /> (inserted by some software like m21)
-					if (isspace(s[0][s[0].size() - 1])) {
-						s[0].pop_back();
-					}
-					evt.content = s[0];
-					evt.depth = depth;
-					evt.type = 1;
-					evts.push_back(evt);
-					s[0] = "";
-					continue;
+					depth += 1;
 				} // endif
+				evt.content = s[0];
+				evt.depth = depth;
+				evt.type = 0;
+				evts.push_back(evt);
+				s[0] = "";
+				continue;
+			} else if (all[i] == '>') {
+				isInBracket = false;
+				if (all[i - 1] == '/')
+				{
+					depth -= 1;
+				}
+				// deal with space before /> (inserted by some software like m21)
+				if (isspace(s[0][s[0].size() - 1])) {
+					s[0].pop_back();
+				}
+				evt.content = s[0];
+				evt.depth = depth;
+				evt.type = 1;
+				evts.push_back(evt);
+				s[0] = "";
+				continue;
+			} // endif
 			s[0]+=all[i];
 		}//endfor i
 }//

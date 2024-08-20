@@ -152,9 +152,6 @@ public:
 	vector<string> comments;
 
 	void ReadFile(string filename){
-		// let user know we are calling this function
-		cout << "Reading file: " << filename << endl;
-
 		vector<int> v(100);
 		vector<double> d(100);
 		vector<string> s(100);

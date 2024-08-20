@@ -21,7 +21,7 @@ def postprocess_score(mxl: stream.Score) -> stream.Score:
     # The following code is fairly ugly cleanup.
     # It removes empty voices and pads under-full measures with rests.
     for part in mxl.parts:
-        measures = list(part.getElementsByClass("Measure"))
+        measures: list[stream.Measure] = list(part.getElementsByClass("Measure"))
         for m in measures:
             voices = list(m.getElementsByClass("Voice"))
             non_empty_voices = [voice for voice in voices if len(voice.notes) > 0]
@@ -34,6 +34,8 @@ def postprocess_score(mxl: stream.Score) -> stream.Score:
                     m.remove(v)
             # pad non-full measures with rests
             for j, v in enumerate(m.getElementsByClass("Voice")):
+                v: stream.Voice
+                # Clean up overlaps
                 v.id = str(j + 1)
                 if m.highestTime < m.barDuration.quarterLength:
                     quarterLength = m.barDuration.quarterLength - v.highestTime
