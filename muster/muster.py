@@ -7,7 +7,7 @@ from pathlib import Path
 
 from music21 import musicxml, note, stream
 
-MUSTER_BIN = Path(__file__).resolve().parent.parent / "evaluate_XML_voicePlus.sh"
+MUSTER_BIN = Path(__file__).resolve().parent / "evaluate_XML_voicePlus.sh"
 
 
 def postprocess_score(mxl: stream.Score) -> stream.Score:

@@ -9,7 +9,11 @@ I1=$1
 I2=$2
 I3=$3
 
-PFol="./Programs"
+# Get the directory of the current script
+SCRIPT_DIR="$(dirname "$0")"
+
+# Construct the relative path to the file in the Programs directory
+PFol="$SCRIPT_DIR/Programs"
 
 $PFol/MusicXMLToFmt3x ${I2}.xml ${I2}_fmt3x.txt
 $PFol/Fmt3xToSpr ${I2}_fmt3x.txt ${I2}_spr.txt

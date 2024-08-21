@@ -1,7 +1,7 @@
 #! /bin/bash
 
-ProgramFolder="./Programs"
-CodeFolder="./Code"
+ProgramFolder="./muster/Programs"
+CodeFolder="./muster/Code"
 
 mkdir $ProgramFolder
 
