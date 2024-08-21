@@ -23,5 +23,6 @@ setup(
     package_data={
         'muster': ['evaluate_XML_voicePlus.sh', 'Programs/*']
     },
+    include_package_data=True,
     cmdclass={'install': CustomInstallCommand},
 )
