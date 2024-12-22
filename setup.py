@@ -1,19 +1,20 @@
-import os
-import subprocess
-
 from setuptools import setup, find_packages
-from setuptools.command.install import install
+from setuptools.command.build_py import build_py
+import subprocess
+import os
 
-
-class CustomInstallCommand(install):
+class CustomBuildPy(build_py):
     def run(self):
-        # Compile C++ code
-        setup_dir = os.path.dirname(os.path.abspath(__file__))
-        script_path = os.path.join(setup_dir, 'muster/compile.sh')
+        # This happens before the normal 'build_py' steps
+        # so that the created files will be picked up by package_data
+        script_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            'muster', 'compile.sh'
+        )
         subprocess.check_call(['sh', script_path])
-        # Run the standard install process
-        install.run(self)
 
+        # Now run the normal build_py to compile .py files and collect data
+        super().run()
 
 setup(
     name='muster',
@@ -21,8 +22,13 @@ setup(
     description='A simple wrapper for MUSTER',
     packages=find_packages(),
     package_data={
-        'muster': ['evaluate_XML_voicePlus.sh', 'Programs/*']
+        'muster': [
+            'evaluate_XML_voicePlus.sh',
+            'Programs/*'
+        ],
     },
     include_package_data=True,
-    cmdclass={'install': CustomInstallCommand},
+    cmdclass={
+        'build_py': CustomBuildPy,
+    },
 )
