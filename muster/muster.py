@@ -11,6 +11,7 @@ from pathlib import Path
 from music21 import musicxml, note, stream
 
 MUSTER_BIN = Path(__file__).resolve().parent / "evaluate_XML_voicePlus.sh"
+EMPTY_SCORE = {'PitchER': None, 'MissRate': None, 'ExtraRate': None, 'OnsetER': None, 'OffsetER': None, 'MeanER': None, 'VoiceER': None, 'NewMeanER': None, 'Pvoi': None, 'Rvoi': None, 'Fvoi': None, 'ScaleErr': None, 'HandER': None}
 
 
 def postprocess_score(mxl: stream.Score) -> stream.Score:
@@ -58,7 +59,7 @@ def muster(
     score_est: stream.Score | str | Path,
     score_gt: stream.Score | str | Path,
     clean_scores: bool=True
-) -> dict[str, float]:
+) -> dict[str, float|None]:
     """
     Computes the MUSTER score between two music scores.
 
@@ -78,7 +79,7 @@ def muster(
             handle_score_file(score_gt, tmpdir + "/gt.xml", clean_scores)
         except ValueError as e:
             print(e)
-            return None
+            return EMPTY_SCORE
         subprocess.run(
             [MUSTER_BIN, tmpdir + "/gt", tmpdir + "/est", tmpdir + "/out"],
             stdout=subprocess.DEVNULL,
@@ -87,13 +88,13 @@ def muster(
             with open(tmpdir + "/out.txt") as f:
                 lines = f.readlines()
         except FileNotFoundError as e:
-            return None
+            return EMPTY_SCORE
     try:
         d = parse_line_to_dict(lines[0])
     except ValueError as e:
         print(lines)
         print(e, lines[0])
-        return None
+        return EMPTY_SCORE
     return d
 
 
