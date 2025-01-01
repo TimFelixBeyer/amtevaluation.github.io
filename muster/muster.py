@@ -3,6 +3,9 @@ import copy
 import shutil
 import subprocess
 import tempfile
+import os
+import xml.etree.ElementTree as ET
+import zipfile
 from pathlib import Path
 
 from music21 import musicxml, note, stream
@@ -67,7 +70,7 @@ def muster(
 
     Returns
     -------
-        dict[str, float]: A dictionary containing the MUS-STEM score and its components.
+        dict[str, float]: A dictionary containing the MUSTER score and its components.
     """
     with tempfile.TemporaryDirectory() as tmpdir:
         try:
@@ -101,9 +104,27 @@ def handle_score_file(score, out_path, clean_scores):
         try:
             score.write("musicxml", out_path, makeNotation=False)
         except musicxml.xmlObjects.MusicXMLExportException as e:
-            raise ValueError(f"MusicXML export error: {e}")
-    elif isinstance(score, (str, Path)) and Path(score).suffix in [".musicxml", ".xml"]:
-        shutil.copyfile(score, out_path)
+            raise ValueError(f"MusicXML export error: {e}") from e
+    elif isinstance(score, (str, Path)) and Path(score).suffix in [".musicxml", ".xml", '.mxl']:
+        if Path(score).suffix == '.mxl':
+            with tempfile.TemporaryDirectory() as temp_dir:
+                with zipfile.ZipFile(score, "r") as z:
+                    z.extractall(temp_dir)
+                for xml_file in Path(temp_dir).rglob("container.xml"):
+                    with open(xml_file, "rb") as f:
+                        tree = ET.parse(f)
+                        root = tree.getroot()
+                    score_path = None
+                    for rootfile in root.findall(".//rootfile"):
+                        score_path = rootfile.attrib.get("full-path")
+                        if score_path is not None:
+                            break
+                    if score_path is None:
+                        raise ValueError("Could not read MXL file")
+                    score_path = os.path.join(temp_dir, score_path)
+                    shutil.copy(score_path, out_path)
+        else:
+            shutil.copyfile(score, out_path)
     else:
         raise ValueError("Invalid file type or extension. Must be .musicxml or .xml")
 
