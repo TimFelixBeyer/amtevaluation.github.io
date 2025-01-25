@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
 	string fmt3xFileEST=string(argv[2]);
 	string matchFile=string(argv[3]);
 	string detailFile=string(argv[4]);
-	int stimeCut=atoi(argv[5]);
+	long long stimeCut=atoll(argv[5]);
 
 	ofstream ofsDetail(detailFile.c_str());
 

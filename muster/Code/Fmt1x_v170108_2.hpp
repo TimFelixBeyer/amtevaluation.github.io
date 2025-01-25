@@ -110,13 +110,13 @@ inline string ditchDown(string principal,char acc_rel,int curKeyFifth){
 
 class Fmt1xEvt{
 public:
-	int stime;
+	long long stime;
 	string barnum;
 	int part;
 	int staff;
 	int voice;
 	string eventtype;//attributes / rest / chord
-	int dur;
+	long long dur;
 	int tieinfo;
 	int numNotes;//=sitches.size()
 	vector<string> sitches;//size = numNotes
@@ -176,7 +176,7 @@ public:
 				}//endif
 				continue;
 			}//endif
-			evt.stime=atoi(s[0].c_str());
+			evt.stime=atoll(s[0].c_str());
 			ifs>>evt.barnum>>evt.part>>evt.staff>>evt.voice>>evt.eventtype;
 			evt.sitches.clear(); evt.notetypes.clear(); evt.fmt1IDs.clear(); evt.ties.clear();
 			evt.info="";
@@ -338,8 +338,8 @@ public:
 		int tie;
 		int curPart=1;
 		int curdivision;
-		int cumulativeStime=0;
-		int maxcumulativeStime=cumulativeStime;
+		long long cumulativeStime=0;
+		long long maxcumulativeStime=cumulativeStime;
 		int time_num=4, time_den=4;
 		int barDur=(time_num*TPQN*4)/time_den;
 		int curKeyFifth=0;
@@ -366,7 +366,7 @@ public:
 				s[0]=UnspaceString(events[i])[1];
 				s[0]=s[0].substr(s[0].find("\"")+2);//if '+2' delete 'P' in 'P1' etc.
 				s[0]=s[0].substr(0,s[0].find("\""));
-				curPart=atoi(s[0].c_str());
+				curPart=atoll(s[0].c_str());
 				cumulativeStime=0;
 				maxcumulativeStime=cumulativeStime;
 				curNumOfStaves=1;
@@ -510,7 +510,7 @@ public:
 				}else if(depths[i]==4&&eventTag=="voice"){
 					evt.voice=atoi(events[i+1].c_str());
 				}else if(depths[i]==4&&eventTag=="duration"){
-					evt.dur=(int)((long long)(atoi(events[i+1].c_str()))*(long long)TPQN/curdivision);
+					evt.dur=atoll(events[i+1].c_str())*(long long)TPQN/curdivision;
 					cumulativeStime+=evt.dur;
 					if(maxcumulativeStime<cumulativeStime){maxcumulativeStime=cumulativeStime;}
 				}else if(depths[i]==4&&eventTag=="tie"){
@@ -593,14 +593,14 @@ public:
 
 			if(backupin){
 				if(depths[i]==4&&eventTag=="duration"){
-					cumulativeStime-=(int)((long long)(atoi(events[i+1].c_str()))*(long long)TPQN/curdivision);
+					cumulativeStime-=atoll(events[i+1].c_str())*(long long)TPQN/curdivision;
 				}else if(depths[i]==3&&eventTag=="/backup"){
 					backupin=false;
 				}//endif
 			}//endif
 			if(forwardin){
 				if(depths[i]==4&&eventTag=="duration"){
-					cumulativeStime+=(int)((long long)(atoi(events[i+1].c_str()))*(long long)TPQN/curdivision);
+					cumulativeStime+=atoll(events[i+1].c_str())*(long long)TPQN/curdivision;
 					if(maxcumulativeStime<cumulativeStime){maxcumulativeStime=cumulativeStime;}
 				}else if(depths[i]==3&&eventTag=="/forward"){
 					forwardin=false;

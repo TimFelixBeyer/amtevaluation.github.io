@@ -18,7 +18,7 @@ class CustomBuildPy(build_py):
 
 setup(
     name='muster',
-    version='0.0.1',
+    version='0.0.2',
     description='A simple wrapper for MUSTER',
     packages=find_packages(),
     package_data={

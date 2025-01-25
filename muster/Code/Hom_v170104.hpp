@@ -15,11 +15,11 @@ using namespace std;
 
 class HomEvt{
 public:
-	int stime;
-	int endstime;
+	long long stime;
+	long long endstime;
 	int voice;
 	string eventtype;
-	int dur;
+	long long dur;
 	int numNotes;
 	vector<string> notetypes;//N or Tr etc.
 	vector<string> sitches;//sitch content
@@ -140,7 +140,7 @@ public:
 		for(int i=0;i<NumOfVoices;i+=1){
 			int status=-1;//-1:nothing/rest, 0=after-note, 1=short-app, 2=chord/tremolo
 			int prevStatus=-1;
-			long curstime=-1;
+			long long curstime=-1;
 			for(int m=0;m<nevts.size();m+=1){
 				if(nevts[m].voice!=i){continue;}
 				if(nevts[m].stime>curstime){curstime=nevts[m].stime; prevStatus=-1;status=-1;}
@@ -161,7 +161,7 @@ public:
 			if(nevts[m].eventtype=="chord"){
 				for(int k=0;k<nevts[m].notetypes.size();k+=1){
 					if(nevts[m].notetypes[k].find("Tr")!=string::npos){
-						int Endstime=nevts[m].stime+nevts[m].dur;
+						long long Endstime=nevts[m].stime+nevts[m].dur;
 						bool afternotesFound=false;
 						for(int n=m+1;n<nevts.size();n+=1){
 							if(nevts[n].stime>Endstime){break;}
@@ -275,7 +275,7 @@ public:
 		for(int i=0;i<NumOfVoices;i+=1){
 			int status=-1;//-1:nothing/rest, 0=after-note, 1=short-app, 2=chord/tremolo
 			int prevStatus=-1;
-			long curstime=-1;
+			long long curstime=-1;
 			for(int m=0;m<evts.size();m+=1){
 				if(evts[m].voice!=i){continue;}
 				if(evts[m].stime>curstime){curstime=evts[m].stime; prevStatus=-1;status=-1;}

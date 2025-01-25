@@ -19,14 +19,14 @@ using namespace std;
 
 class Fmt3Evt{
 public:
-	int stime;
+	long long stime;
 	string barnum;
 	int staff;//<- (xml-part,xml-staff)
 	int voice;// = xml-voice
 	int subvoice;
 	int subOrder;
 	string eventtype;
-	int dur;
+	long long dur;
 	int numNotes;//=sitches.size()
 	vector<string> sitches;//sitch content
 	vector<string> notetypes;//N or Tr etc.
@@ -63,7 +63,7 @@ public:
 
 class DuplicateOnsetEvtInFmt3{
 public:
-	int stime;
+	long long stime;
 	string sitch;
 	int numOnsets;
 	vector<string> fmt1IDs;
@@ -85,10 +85,10 @@ public:
 class SubVoiceStructure{
 public:
 	vector<SubVoice> subVoices;
-	vector<int> durations;
+	vector<long long> durations;
 
 	void Update(int pos1,int pos2,vector<int> noteStatus){
-		int  accommodatingVoice=-1;
+		int accommodatingVoice=-1;
 		if(subVoices.size()==0){
 		}else{
 			assert(subVoices[0].status.size()==noteStatus.size());
@@ -291,7 +291,7 @@ public:
 				}//endif
 				continue;
 			}//endif
-			evt.stime=atoi(s[0].c_str());
+			evt.stime=atoll(s[0].c_str());
 			ifs>>evt.barnum>>evt.staff>>evt.voice>>evt.subvoice>>evt.subOrder;
 			ifs>>evt.eventtype>>evt.dur>>evt.numNotes;
 			evt.sitches.clear(); evt.fmt1IDs.clear(); evt.notetypes.clear(); evt.AFInfo.clear();
@@ -741,7 +741,7 @@ public:
 			}//endfor j
 
 			/// Set subOrder
-			long prev_stime=voice_nevtSeq[i][0].stime;
+			long long prev_stime=voice_nevtSeq[i][0].stime;
 			int subcount=1, afterNoteCount=0;
 			voice_nevtSeq[i][0].subOrder=0;
 			for(int j=1;j<voice_nevtSeq[i].size();j+=1){
@@ -889,7 +889,7 @@ public:
 				clusterOntime+=pr.evts[clusters[i][j]].ontime;
 			}//endfor j
 			clusterOntime/=double(clusters[i].size());
-			evt.stime=int(1000*clusterOntime);
+			evt.stime=(long long)(1000*clusterOntime);
 
 			evt.sitches.clear();
 			evt.notetypes.clear();

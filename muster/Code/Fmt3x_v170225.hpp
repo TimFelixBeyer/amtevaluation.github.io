@@ -19,14 +19,14 @@ using namespace std;
 
 class Fmt3xEvt{
 public:
-	int stime;
+	long long stime;
 	string barnum;
 	int staff;
 	int voice;//Note: different from xml-voice.
 	int subvoice;
 	int subOrder;
 	string eventtype;
-	int dur;
+	long long dur;
 	int numNotes;//=sitches.size()
 	vector<string> sitches;//sitch content
 	vector<string> notetypes;//N or Tr etc.
@@ -62,7 +62,7 @@ public:
 
 class DuplicateOnsetEvtInFmt3x{
 public:
-	int stime;
+	long long stime;
 	string sitch;
 	int numOnsets;
 	vector<string> fmt1IDs;
@@ -270,7 +270,7 @@ public:
 				}//endif
 				continue;
 			}//endif
-			evt.stime=atoi(s[0].c_str());
+			evt.stime=atoll(s[0].c_str());
 			ifs>>evt.barnum>>evt.staff>>evt.voice>>evt.subvoice>>evt.subOrder;
 			ifs>>evt.eventtype>>evt.dur>>evt.numNotes;
 			evt.sitches.clear(); evt.fmt1IDs.clear(); evt.notetypes.clear(); evt.AFInfo.clear();
@@ -863,7 +863,7 @@ public:
 				clusterOntime+=pr.evts[clusters[i][j]].ontime;
 			}//endfor j
 			clusterOntime/=double(clusters[i].size());
-			evt.stime=int(1000*clusterOntime);
+			evt.stime=(long long)(1000*clusterOntime);
 
 			evt.sitches.clear();
 			evt.notetypes.clear();

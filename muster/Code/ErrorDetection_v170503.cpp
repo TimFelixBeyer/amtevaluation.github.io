@@ -647,10 +647,10 @@ if(printOn){cout<<n<<"\t"<<"!!!!!"<<endl;}
 
 			/// Choose on-the-beat note
 			double refTime;
-			int infStime=-1,supStime=-1;
+			long long infStime=-1,supStime=-1;
 			double infTime,supTime;
 			for(int k=0;k<medianTimes.size();k+=1){
-				if(medianTimes[k]<0){continue;}
+				if (medianTimes[k] < 0){continue;}
 				if(hmm.evts[k].stime<=fmt3.evts[i].stime){
 					infStime=hmm.evts[k].stime;
 					infTime=medianTimes[k];

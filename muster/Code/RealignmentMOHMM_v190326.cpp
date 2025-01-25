@@ -169,7 +169,7 @@ cout<<"["<<regions[i][0]<<","<<regions[i][1]<<")"<<endl;
 			if(value>=regions[i][0] && value<regions[i][1]){regionID=i;break;}
 		}//endfor i
 		return regionID;
-	}//end 
+	}//end
 
 };//end Regions
 
@@ -196,75 +196,6 @@ int main(int argc,char** argv){
 	hmm.ReadFile(hmmFile);
 	hmm.ResetInternalPosition();
 
-
-if(false){
-	/// Correct trivial miss-extra pairs
-	vector<int> foundMissingNoteIDs;
-	for(int i=0;i<match.missingNotes.size();i+=1){
-		double refT;
-		vector<int> refNoteIDs;
-		int lowermaxID=-1;
-		int upperminID=-1;
-		for(int m=0;m<match.evts.size();m+=1){
-			if(match.evts[m].errorInd>1){continue;}
-			if(match.evts[m].stime<match.missingNotes[i].stime){
-				lowermaxID=m;
-			}else if(match.evts[m].stime==match.missingNotes[i].stime){
-				refNoteIDs.push_back(m);
-			}else if(match.evts[m].stime>match.missingNotes[i].stime){
-				upperminID=m;
-				break;
-			}//endif
-		}//endfor m
-
-		if(refNoteIDs.size()>0){
-			refT=0;
-			for(int k=0;k<refNoteIDs.size();k+=1){
-				refT+=match.evts[refNoteIDs[k]].ontime;
-			}//endfor k
-			refT/=double(refNoteIDs.size());
-		}else if(lowermaxID>=0 && upperminID>=0){
-			refT=match.evts[lowermaxID].ontime+(match.evts[upperminID].ontime-match.evts[lowermaxID].ontime)*(match.missingNotes[i].stime-match.evts[lowermaxID].stime)/double(match.evts[upperminID].stime-match.evts[lowermaxID].stime);
-		}else{
-			continue;
-		}//endif
-
-		vector<int> fmt3xPos=fmt3x.FindFmt3xScorePos(match.missingNotes[i].fmt1ID);
-		assert(fmt3xPos[0]>=0);
-
-		double mintime=refT-0.3;
-		double maxtime=refT+0.3;
-		for(int m=0;m<match.evts.size();m+=1){
-			if(match.evts[m].ontime<mintime){continue;}
-			if(match.evts[m].ontime>maxtime){break;}
-
-			if(match.evts[m].errorInd<=1){continue;}
-			if(SitchToPitch(match.evts[m].sitch)!=SitchToPitch(fmt3x.evts[fmt3xPos[0]].sitches[fmt3xPos[1]])){continue;}
-
-			match.evts[m].errorInd=0;
-			match.evts[m].sitch=fmt3x.evts[fmt3xPos[0]].sitches[fmt3xPos[1]];
-			match.evts[m].stime=match.missingNotes[i].stime;
-			match.evts[m].fmt1ID=match.missingNotes[i].fmt1ID;
-			foundMissingNoteIDs.push_back(i);
-
-			break;
-		}//endfor m
-
-	}//endfor i
-
-	for(int i=foundMissingNoteIDs.size()-1;i>=0;i-=1){
-		match.missingNotes.erase(match.missingNotes.begin()+foundMissingNoteIDs[i]);
-	}//endfor i
-}//endif
-
-
-
-
-
-
-
-
-
 	/// Normalise duplicate note labels
 	for(int n=0;n<match.evts.size();n+=1){
 		for(int k=0;k<hmm.duplicateOnsets.size();k+=1){
@@ -276,7 +207,7 @@ if(false){
 		}//endfor k
 	}//endfor n
 
-	/// Pick up performacne errors
+	/// Pick up performance errors
 	vector<int> pitchErrPos;
 	vector<int> extraNotePos;
 	vector<int> reorderdNotePos;
@@ -311,7 +242,8 @@ if(false){
 		missNoteIDs.push_back( fmt3x.FindFmt3xScorePos(match.missingNotes[i].fmt1ID) );
 	}//endfor i
 
-	if(stimes.size()<=1){//Output the original match file if there are too few reference notes
+	//Output the original match file if there are too few reference notes
+	if(stimes.size()<=1){
 		match.WriteFile(outMatchFile);
 		return 0;
 	}//endif
@@ -332,7 +264,6 @@ if(false){
 	}//endfor k
 
 	for(int k=0;k<extraNotePos.size();k+=1){
-//cout<<match.evts[extraNotePos[k]].ontime<<endl;
 		extraNoteRegions.Add(match.evts[extraNotePos[k]].ontime-widthSec,match.evts[extraNotePos[k]].ontime+widthSec);
 		errRegions.Add(match.evts[extraNotePos[k]].ontime-widthSec,match.evts[extraNotePos[k]].ontime+widthSec);
 	}//endfor k
@@ -347,8 +278,6 @@ if(false){
 		missNoteRegions.Add(evtTime-widthSec,evtTime+widthSec);
 		errRegions.Add(evtTime-widthSec,evtTime+widthSec);
 	}//endfor k
-
-//extraNoteRegions.Print();
 
 	MOHMM mohmm;
 	mohmm.SetScorePerfmMatch(match);
@@ -378,90 +307,14 @@ if(false){
 			if(match.evts[n].ontime<minTime){minTime=match.evts[n].ontime;}
 			maxTime=match.evts[n].ontime;
 		}//endfor n
-
-//cout<<"("<<errRegions.regions[i][0]<<" , "<<errRegions.regions[i][1]<<")\t("<<minTime<<" , "<<maxTime<<")\t("<<minStime<<" , "<<maxStime<<")\t(perr,ext,miss,reord) "<<includePitchErr<<" "<<includeExtraNote<<" "<<includeMissNote<<" "<<includeReorderedNote<<endl;
-//		if(!includeExtraNote || !includeMissNote){continue;}
-
 		if(!( (includeExtraNote&&includeMissNote) || (includeMissNote&&includePitchErr) || (includeExtraNote&&includePitchErr) )){continue;}
 
 		if(minTime>=maxTime){continue;}
 		if(minStime>=maxStime){continue;}
-
-//if(minTime>19.6634){break;}
-
-//cout<<"("<<errRegions.regions[i][0]<<" , "<<errRegions.regions[i][1]<<")\t("<<minTime<<" , "<<maxTime<<")\t("<<minStime<<" , "<<maxStime<<")"<<endl;
-
 		mohmm.Realign(minStime,maxStime,minTime,maxTime);
-
 	}//endfor i
-//cout<<endl;
-
-//		mohmm.Realign(37,52,4.57265,5.69978);
-//(4.50502 , 5.74204)	(4.57265 , 5.69978)	(37 , 52)
 
 	match=mohmm.match;
-
-
-if(false){
-	/// Correct trivial miss-extra pairs
-	vector<int> foundMissingNoteIDs;
-	for(int i=0;i<match.missingNotes.size();i+=1){
-		double refT;
-		vector<int> refNoteIDs;
-		int lowermaxID=-1;
-		int upperminID=-1;
-		for(int m=0;m<match.evts.size();m+=1){
-			if(match.evts[m].errorInd>1){continue;}
-			if(match.evts[m].stime<match.missingNotes[i].stime){
-				lowermaxID=m;
-			}else if(match.evts[m].stime==match.missingNotes[i].stime){
-				refNoteIDs.push_back(m);
-			}else if(match.evts[m].stime>match.missingNotes[i].stime){
-				upperminID=m;
-				break;
-			}//endif
-		}//endfor m
-
-		if(refNoteIDs.size()>0){
-			refT=0;
-			for(int k=0;k<refNoteIDs.size();k+=1){
-				refT+=match.evts[refNoteIDs[k]].ontime;
-			}//endfor k
-			refT/=double(refNoteIDs.size());
-		}else if(lowermaxID>=0 && upperminID>=0){
-			refT=match.evts[lowermaxID].ontime+(match.evts[upperminID].ontime-match.evts[lowermaxID].ontime)*(match.missingNotes[i].stime-match.evts[lowermaxID].stime)/double(match.evts[upperminID].stime-match.evts[lowermaxID].stime);
-		}else{
-			continue;
-		}//endif
-
-		vector<int> fmt3xPos=fmt3x.FindFmt3xScorePos(match.missingNotes[i].fmt1ID);
-		assert(fmt3xPos[0]>=0);
-
-		double mintime=refT-0.3;
-		double maxtime=refT+0.3;
-		for(int m=0;m<match.evts.size();m+=1){
-			if(match.evts[m].ontime<mintime){continue;}
-			if(match.evts[m].ontime>maxtime){break;}
-
-			if(match.evts[m].errorInd<=1){continue;}
-			if(SitchToPitch(match.evts[m].sitch)!=SitchToPitch(fmt3x.evts[fmt3xPos[0]].sitches[fmt3xPos[1]])){continue;}
-
-			match.evts[m].errorInd=0;
-			match.evts[m].sitch=fmt3x.evts[fmt3xPos[0]].sitches[fmt3xPos[1]];
-			match.evts[m].stime=match.missingNotes[i].stime;
-			match.evts[m].fmt1ID=match.missingNotes[i].fmt1ID;
-			foundMissingNoteIDs.push_back(i);
-
-			break;
-		}//endfor m
-
-	}//endfor i
-
-	for(int i=foundMissingNoteIDs.size()-1;i>=0;i-=1){
-		match.missingNotes.erase(match.missingNotes.begin()+foundMissingNoteIDs[i]);
-	}//endfor i
-}//endif
-
 
 	for(int n=0;n<match.evts.size();n+=1){
 		if(match.evts[n].errorInd>1){
@@ -483,10 +336,6 @@ if(false){
 		}//endfor j
 	}//endfor i
 
-
-
 	match.WriteFile(outMatchFile);
-
-
 	return 0;
 }//end main

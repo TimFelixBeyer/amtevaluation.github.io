@@ -27,7 +27,7 @@ public:
 	int offvel;
 	int channel;
 	int matchStatus;//0(with corresponding score time)/1(without corresponding score time; atemporal event)/-1(note match if errorInd=2,3)
-	int stime;
+	long long stime;
 	string fmt1ID;
 	int errorInd;//0(correct)/1(pitch error)/2(note-wise extra note, &)/3(cluster-wise extra note, *)
 	string skipInd;//0(beginning)/1(resumption point)/- or +(otherwise)
@@ -40,7 +40,7 @@ public:
 class MissingNote{
 public:
 
-	int stime;
+	long long stime;
 	string fmt1ID;
 
 	MissingNote(){}//end MissingNote

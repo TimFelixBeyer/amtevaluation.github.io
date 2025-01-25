@@ -44,7 +44,8 @@ public:
 	vector<double> timeHist;
 	int D1_,D2_;
 
-	vector<int> Stime,EndStime,TopId,BotId;
+	vector<long long> Stime, EndStime;
+	vector<int> TopId, BotId;
 	vector<string> Type;
 	vector<vector<vector<int> > > PitchClusters,VoiceClusters;
 	vector<vector<vector<string> > > RefClusters;
@@ -644,7 +645,7 @@ public:
 		return amax;
 	}//end GetOptimalState
 
-	int GetCurrentTick() const{
+	long long GetCurrentTick() const{
 		assert(currentState_<nState_);
 		return Stime[currentState_];
 	}//end GetCurrentTick

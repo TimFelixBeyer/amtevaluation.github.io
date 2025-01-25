@@ -17,8 +17,8 @@ using namespace std;
 
 class HmmEvt{
 public:
-	int stime;
-	int endstime;
+	long long stime;
+	long long endstime;
 	int internalPosition;
 	string stateType;//CH,SA,AN,TR
 	int numClusters;
@@ -36,7 +36,7 @@ public:
 
 class DuplicateOnsetEvt{
 public:
-	int stime;
+	long long stime;
 	string sitch;
 	int numOnsets;
 	vector<string> fmt1IDs;
@@ -93,7 +93,7 @@ public:
 				}//endif
 				continue;
 			}//endif
-			evt.stime=atoi(s[0].c_str());
+			evt.stime=atoll(s[0].c_str());
 			ifs>>evt.endstime>>evt.internalPosition>>evt.stateType>>evt.numClusters;
 			ifs>>evt.numSitches>>evt.numCh>>evt.numArp>>evt.numInterCluster;
 			evt.numNotesPerCluster.clear();
@@ -171,7 +171,7 @@ public:
 		for(int i=0;i<NumOfVoices;i+=1){
 			int status=-1;//-1:nothing/rest, 0=after-note, 1=short-app, 2=chord/tremolo
 			int prevStatus=-1;
-			int curstime=-1;
+			long long curstime=-1;
 			for(int m=0;m<hom.evts.size();m+=1){
 				if(hom.evts[m].voice!=i){continue;}
 				if(hom.evts[m].stime>curstime){curstime=hom.evts[m].stime; prevStatus=-1;status=-1;}
@@ -187,7 +187,7 @@ public:
 // cerr<<"&&&&&&&&&&&&&&& 2"<<endl;
 
 {
-		int curStime=-1;
+		long long curStime=-1;
 		int curType=0;//0=after-note, 1=short-app, 2=chord, 3=tremolo
 		int preType;
 		vector<HomEvt> nevts_an,nevts_sa,nevts_ch,nevts_tm;
@@ -211,8 +211,6 @@ public:
 			}//endif
 
 			int internalPosition=1;
-
-//if(curStime==6352){cerr<<nevts_an.size()<<endl;}
 
 			if(nevts_an.size()>0){
 
@@ -341,18 +339,11 @@ public:
 			}//endif
 			if(nevts_tm.size()>0&&chordalAndTrill<2){chordalAndTrill+=2;}//endif
 
-// if(curStime==1360){cerr<<"chordalAndTrill "<<chordalAndTrill<<endl;}
-
 			if(chordalAndTrill==1){//purely chordal
-
 				if(nevts_sa.size()+nevts_ch.size()>0){
-
-//if(curStime==6352){cerr<<"chordalAndTrill "<<chordalAndTrill<<" "<<reorderedNevts.size()<<" "<<NumOfVoices<<endl;}
-
 					bool multiRef=false;
-
 					Nch=0;Nsa=0;Narp=0;
-					int stime;
+					long long stime;
 					for(int m=0;m<NumOfVoices;m+=1){reorderedNevts[m].clear();}//endfor m
 					for(int j=nevts_sa.size()-1;j>=0;j-=1){
 						if(nevts_sa[j].sitches.size()==0){nevts_sa.erase(nevts_sa.begin()+j);}
@@ -380,8 +371,6 @@ public:
 						if(reorderedNevts[m].size()>Ncluster){Ncluster=reorderedNevts[m].size();};
 						if(reorderedNevts[m].size()>0){NrelevantVoice+=1;}
 					}//endfor m
-
-// if(curStime==1360){cerr<<"NrelevantVoice "<<NrelevantVoice<<endl;}
 
 					if(NrelevantVoice==1&&nevts_sa.size()>0&&multiRef){
 
@@ -510,7 +499,7 @@ public:
 				vector<vector<string> > trCluster(2),trRef(2);
 				vector<int> anVoice;
 				vector<vector<int> > trVoice(2);
-				int stime,endstime=0;
+				long long stime,endstime=0;
 				for(int j=0;j<nevts_ch.size();j+=1){
 					for(int k=0;k<nevts_ch[j].notetypes.size();k+=1){
 						if(nevts_ch[j].notetypes[k].find("Tr")==string::npos){continue;}
@@ -589,7 +578,7 @@ public:
 			}else if(chordalAndTrill==3){//chord + trill/tremolo
 
 				Nch=0;Nsa=0;Narp=0;
-				long stime,endstime=0;
+				long long stime,endstime=0;
 				for(int m=0;m<NumOfVoices;m+=1){reorderedNevts[m].clear();}//endfor m
 				for(int j=0;j<nevts_sa.size();j+=1){
 					stime=nevts_sa[j].stime;
@@ -612,8 +601,6 @@ public:
 					if(reorderedNevts[m].size()>Ncluster){Ncluster=reorderedNevts[m].size();};
 					if(reorderedNevts[m].size()>0){NrelevantVoice+=1;}
 				}//endfor m
-
-// if(curStime==1360){cerr<<"NrelevantVoice "<<NrelevantVoice<<endl;}
 
 				if(NrelevantVoice==1&&nevts_sa.size()>0){
 
@@ -664,7 +651,7 @@ public:
 						}//endfor k
 
 						assert(Nch+Narp+1==nevts_ch[j].sitches.size());
-	
+
 						hmmevt.stime            =nevts_ch[j].stime;
 						hmmevt.endstime         =nevts_ch[j].stime;
 						hmmevt.internalPosition =internalPosition;
@@ -688,44 +675,6 @@ public:
 						internalPosition+=1;
 
 					}//endfor j
-
-//************************** replaced 22/1/27
-// 					if(nevts_ch.size()!=1){
-// cerr<<"Err: "<<curStime<<" "<<nevts_ch.size()<<endl; assert(false);
-// 					}//endif
-// 
-// 					Nch=0;Narp=0;
-// 					for(int k=1;k<nevts_ch[0].sitches.size();k+=1){
-// 						if(nevts_ch[0].notetypes[k].find("Arp")==string::npos){Nch+=1;
-// 						}else{Narp+=1;
-// 						}//endif
-// 					}//endfor k
-// 
-// 					assert(Nch+Narp+1==nevts_ch[0].sitches.size());
-// 
-// 					hmmevt.stime            =nevts_ch[0].stime;
-// 					hmmevt.endstime         =nevts_ch[0].stime;
-// 					hmmevt.internalPosition =internalPosition;
-// 					hmmevt.stateType        ="CH";
-// 					hmmevt.numClusters      =1;
-// 					hmmevt.numSitches       =nevts_ch[0].sitches.size();
-// 					hmmevt.numCh            =Nch;
-// 					hmmevt.numArp           =Narp;
-// 					hmmevt.numInterCluster  =0;
-// 					hmmevt.numNotesPerCluster.clear(); hmmevt.numNotesPerCluster.resize(hmmevt.numClusters);
-// 					hmmevt.sitchesPerCluster.clear(); hmmevt.sitchesPerCluster.resize(hmmevt.numClusters);
-// 					hmmevt.voicesPerCluster.clear(); hmmevt.voicesPerCluster.resize(hmmevt.numClusters);
-// 					hmmevt.fmt1IDsPerCluster.clear(); hmmevt.fmt1IDsPerCluster.resize(hmmevt.numClusters);
-// 					hmmevt.numNotesPerCluster[0]=nevts_ch[0].sitches.size();
-// 					for(int k=0;k<nevts_ch[0].sitches.size();k+=1){
-// 						hmmevt.sitchesPerCluster[0].push_back(nevts_ch[0].sitches[k]);
-// 						hmmevt.voicesPerCluster[0].push_back(nevts_ch[0].voice);
-// 						hmmevt.fmt1IDsPerCluster[0].push_back(nevts_ch[0].fmt1IDs[k]);
-// 					}//endfor k
-// // 					evts.push_back(hmmevt);
-// // 					internalPosition+=1;
-// //->???
-//************************** replaced 22/1/27
 
 				}else{//if NrelevantVoice > 1 or purely chordal
 
@@ -881,17 +830,15 @@ public:
 
 }//
 
-// cerr<<"&&&&&&&&&&&&&&& 3"<<endl;
-
 		//// Find duplicate onsets
 		DuplicateOnsetEvt dup;
-		int preStime=-1;
-		vector<vector<vector<int> > > indecesPerPitch;//indecesPerPitch[p][j][0,1]=k,l for evts[i].sitchesPerCluster[k][l]
+		long long preStime=-1;
+		vector<vector<vector<int> > > indicesPerPitch;//indicesPerPitch[p][j][0,1]=k,l for evts[i].sitchesPerCluster[k][l]
 		vector<int> vi(2);
 		vector<string> uniqueFmt1IDs;
 		for(int i=0;i<evts.size();i+=1){
-			indecesPerPitch.clear();
-			indecesPerPitch.resize(128);
+			indicesPerPitch.clear();
+			indicesPerPitch.resize(128);
 			for(int k=0;k<evts[i].numClusters;k+=1)for(int l=0;l<evts[i].numNotesPerCluster[k];l+=1){
 
 // if(SitchToPitch(evts[i].sitchesPerCluster[k][l])<0 || SitchToPitch(evts[i].sitchesPerCluster[k][l])>127){
@@ -899,20 +846,20 @@ public:
 // }//endif
 
 				vi[0]=k; vi[1]=l;
-				indecesPerPitch[SitchToPitch(evts[i].sitchesPerCluster[k][l])].push_back(vi);
+				indicesPerPitch[SitchToPitch(evts[i].sitchesPerCluster[k][l])].push_back(vi);
 			}//endfor k,l
 
 			for(int p=0;p<128;p+=1){
-				if(indecesPerPitch[p].size()<=1){continue;}
+				if(indicesPerPitch[p].size()<=1){continue;}
 				uniqueFmt1IDs.clear();
-				for(int j=0;j<indecesPerPitch[p].size();j+=1){
-					if(find(uniqueFmt1IDs.begin(),uniqueFmt1IDs.end(),evts[i].fmt1IDsPerCluster[indecesPerPitch[p][j][0]][indecesPerPitch[p][j][1]])==uniqueFmt1IDs.end()){
-						uniqueFmt1IDs.push_back(evts[i].fmt1IDsPerCluster[indecesPerPitch[p][j][0]][indecesPerPitch[p][j][1]]);
+				for(int j=0;j<indicesPerPitch[p].size();j+=1){
+					if(find(uniqueFmt1IDs.begin(),uniqueFmt1IDs.end(),evts[i].fmt1IDsPerCluster[indicesPerPitch[p][j][0]][indicesPerPitch[p][j][1]])==uniqueFmt1IDs.end()){
+						uniqueFmt1IDs.push_back(evts[i].fmt1IDsPerCluster[indicesPerPitch[p][j][0]][indicesPerPitch[p][j][1]]);
 					}//endif
 				}//endfor j
 				if(uniqueFmt1IDs.size()<=1){continue;}
 				dup.stime=evts[i].stime;
-				dup.sitch=evts[i].sitchesPerCluster[indecesPerPitch[p][0][0]][indecesPerPitch[p][0][1]];
+				dup.sitch=evts[i].sitchesPerCluster[indicesPerPitch[p][0][0]][indicesPerPitch[p][0][1]];
 				dup.numOnsets=uniqueFmt1IDs.size();
 				dup.fmt1IDs.clear();
 				for(int j=uniqueFmt1IDs.size()-1;j>=0;j-=1){
@@ -973,7 +920,7 @@ public:
 	}//end ConvertFromFmt3x
 
 	void ResetInternalPosition(){//AN have negative internal positions
-		int preStime=-1000;
+		long long preStime=-1000;
 		int NTmpEvts=0;
 		int numANs=0;
 		for(int i=0;i<evts.size();i+=1){

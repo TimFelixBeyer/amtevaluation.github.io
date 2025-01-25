@@ -16,10 +16,10 @@ using namespace std;
 
 class Fmt2Evt{
 public:
-	int stime;
+	long long stime;
 	int voice;
 	string eventtype;
-	int dur;
+	long long dur;
 	int numNotes;
 	vector<string> sitches;//sitch content
 	vector<string> notetypes;//N or Tr etc.
@@ -67,7 +67,7 @@ public:
 				}//endif
 				continue;
 			}//endif
-			evt.stime=atoi(s[0].c_str());
+			evt.stime=atoll(s[0].c_str());
 			ifs>>evt.voice>>evt.eventtype>>evt.dur>>evt.numNotes;
 			evt.fmt1IDs.clear(); evt.sitches.clear(); evt.notetypes.clear();
 			for(int j=0;j<evt.numNotes;j+=1){ifs>>s[10]; evt.notetypes.push_back(s[10]);}//endfor j
@@ -693,7 +693,7 @@ public:
 		int prevNum=evts.size();
 		int NumOfVoices=part_voice.size();
 		vector<vector<Fmt2Evt> > voice_nevtSeq(NumOfVoices);
-		int largestStime=0;
+		long long largestStime=0;
 		for(int i=0;i<evts.size();i+=1){
 			voice_nevtSeq[evts[i].voice].push_back(evts[i]);
 			if(evts[i].stime>largestStime){largestStime=evts[i].stime;}
@@ -752,7 +752,7 @@ public:
 		}//endfor i
 
 		/// Sorting nevtSeq
-		int curstime=evts[0].stime;
+		long long curstime=evts[0].stime;
 		vector<int> numPerVoice(NumOfVoices);
 		vector<int> posPerVoice(NumOfVoices);
 		for(int i=0;i<NumOfVoices;i+=1){
