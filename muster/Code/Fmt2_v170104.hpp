@@ -760,6 +760,17 @@ public:
 			posPerVoice[i]=0;
 		}//endfor i
 		evts.clear();
+		// for (auto &voiceEvents : voice_nevtSeq) {
+		// 	evts.insert(evts.end(), voiceEvents.begin(), voiceEvents.end());
+		// }
+
+		// // Sort by stime, then by voice:
+		// std::sort(evts.begin(), evts.end(), [](const Fmt2Evt &a, const Fmt2Evt &b){
+		// 	if (a.stime != b.stime) {
+		// 		return a.stime < b.stime;
+		// 	}
+		// 	return a.voice < b.voice;
+		// });
 		bool ended=false;
 		bool found;
 		while(!ended){
@@ -772,16 +783,23 @@ public:
 					break;
 				}//endif
 			}//endfor i
-			if(found){
+			// are we done yet? If yes, break
+			if (found) {
 				ended=true;
-				for(int i=0;i<NumOfVoices;i+=1){
-					if(posPerVoice[i]<=numPerVoice[i]-1){ended=false; break;}
+				for(int i=0;i<NumOfVoices;i+=1) {
+					if(posPerVoice[i]<numPerVoice[i]) {
+						ended=false;
+						break;
+					}
 				}//endfor i
 			}else{
+				// find the next smallest stime
 				curstime=largestStime+1;
-				for(int i=0;i<NumOfVoices;i+=1){
+				for(int i=0;i<NumOfVoices;i+=1) {
 					if(posPerVoice[i]>numPerVoice[i]-1){continue;}
-					if(voice_nevtSeq[i][posPerVoice[i]].stime<curstime){curstime=voice_nevtSeq[i][posPerVoice[i]].stime;}
+					if(voice_nevtSeq[i][posPerVoice[i]].stime<curstime) {
+						curstime=voice_nevtSeq[i][posPerVoice[i]].stime;
+					}
 				}//endfor i
 			}//endif
 		}//endwhile

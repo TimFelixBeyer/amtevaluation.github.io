@@ -133,12 +133,8 @@ public:
 class LessFmt1xEvt{
 public:
 	bool operator()(const Fmt1xEvt& a, const Fmt1xEvt& b){
-		if(a.stime < b.stime){
-			return true;
-		}else{//if a.stime >= b.stime
-			return false;
-		}//endif
-	}//end operator()
+		return a.stime < b.stime;
+	} // end operator()
 
 };//end class LessFmt1xEvt
 //stable_sort(Fmt1xEvts.begin(), Fmt1xEvts.end(), LessFmt1xEvt());
@@ -514,7 +510,7 @@ public:
 				}else if(depths[i]==4&&eventTag=="voice"){
 					evt.voice=atoi(events[i+1].c_str());
 				}else if(depths[i]==4&&eventTag=="duration"){
-					evt.dur=(atoi(events[i+1].c_str())*TPQN)/curdivision;
+					evt.dur=(int)((long long)(atoi(events[i+1].c_str()))*(long long)TPQN/curdivision);
 					cumulativeStime+=evt.dur;
 					if(maxcumulativeStime<cumulativeStime){maxcumulativeStime=cumulativeStime;}
 				}else if(depths[i]==4&&eventTag=="tie"){
@@ -597,14 +593,14 @@ public:
 
 			if(backupin){
 				if(depths[i]==4&&eventTag=="duration"){
-					cumulativeStime-=(atoi(events[i+1].c_str())*TPQN)/curdivision;
+					cumulativeStime-=(int)((long long)(atoi(events[i+1].c_str()))*(long long)TPQN/curdivision);
 				}else if(depths[i]==3&&eventTag=="/backup"){
 					backupin=false;
 				}//endif
 			}//endif
 			if(forwardin){
 				if(depths[i]==4&&eventTag=="duration"){
-					cumulativeStime+=(atoi(events[i+1].c_str())*TPQN)/curdivision;
+					cumulativeStime+=(int)((long long)(atoi(events[i+1].c_str()))*(long long)TPQN/curdivision);
 					if(maxcumulativeStime<cumulativeStime){maxcumulativeStime=cumulativeStime;}
 				}else if(depths[i]==3&&eventTag=="/forward"){
 					forwardin=false;

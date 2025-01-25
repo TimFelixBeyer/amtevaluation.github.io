@@ -1,0 +1,4 @@
+build
+muster/Programs
+*.egg-info
+*.pyc

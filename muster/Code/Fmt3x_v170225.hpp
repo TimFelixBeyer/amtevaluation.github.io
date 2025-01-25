@@ -675,6 +675,9 @@ public:
 
 		/// Reduce rests and tremolos and convert short-app after trills to after-notes
 		for(int i=0;i<part_voice.size();i+=1){
+			if (voice_nevtSeq[i].empty()) {
+				continue;
+			}
 
 			bool after_trill=false;
 			if(voice_nevtSeq[i][0].eventtype=="chord"){
@@ -739,6 +742,9 @@ public:
 		/// Merge and sort
 		evts.clear();
 		for(int i=0;i<part_voice.size();i+=1){
+			if (voice_nevtSeq[i].empty()) {
+				continue;
+			}
 			for(int j=0;j<voice_nevtSeq[i].size();j+=1){
 				evts.push_back(voice_nevtSeq[i][j]);
 			}//endfor j
@@ -758,52 +764,53 @@ public:
 		/// Find duplicate onsets
 {
 		DuplicateOnsetEvtInFmt3x dup;
-		vector<vector<vector<int> > > indecesPerPitch;//indecesPerPitch[p][k][0,1]=i,j for evts[i].sitches[j]
+		vector<vector<vector<int> > > indicesPerPitch;//indicesPerPitch[p][k][0,1]=i,j for evts[i].sitches[j]
 		vector<int> vi(2);
 		vector<string> uniqueFmt1IDs;
-		indecesPerPitch.clear();
-		indecesPerPitch.resize(128);
-		if(evts[0].eventtype=="chord"){
-			for(int j=0;j<evts[0].numNotes;j+=1){
-				vi[0]=0; vi[1]=j;
-				indecesPerPitch[SitchToPitch(evts[0].sitches[j].substr(0,evts[0].sitches[j].find(",")))].push_back(vi);
-			}//endfor j
-		}//endif
+		indicesPerPitch.clear();
+		indicesPerPitch.resize(128);
+		if (evts.size() > 0) {
+			if(evts[0].eventtype=="chord"){
+				for(int j=0;j<evts[0].numNotes;j+=1){
+					vi[0]=0; vi[1]=j;
+					indicesPerPitch[SitchToPitch(evts[0].sitches[j].substr(0,evts[0].sitches[j].find(",")))].push_back(vi);
+				}//endfor j
+			}//endif
+		}
 		for(int i=1;i<evts.size();i+=1){
-
 			if(evts[i].stime!=evts[i-1].stime){
 				for(int p=0;p<128;p+=1){
-					if(indecesPerPitch[p].size()>1){
-						dup.stime=evts[indecesPerPitch[p][0][0]].stime;
-						dup.sitch=evts[indecesPerPitch[p][0][0]].sitches[indecesPerPitch[p][0][1]];
+					if(indicesPerPitch[p].size()>1){
+						dup.stime=evts[indicesPerPitch[p][0][0]].stime;
+						dup.sitch=evts[indicesPerPitch[p][0][0]].sitches[indicesPerPitch[p][0][1]];
 						dup.fmt1IDs.clear();
-						for(int k=indecesPerPitch[p].size()-1;k>=0;k-=1){
-							dup.fmt1IDs.push_back(evts[indecesPerPitch[p][k][0]].fmt1IDs[indecesPerPitch[p][k][1]]);
+						for(int k=indicesPerPitch[p].size()-1;k>=0;k-=1){
+							dup.fmt1IDs.push_back(evts[indicesPerPitch[p][k][0]].fmt1IDs[indicesPerPitch[p][k][1]]);
 						}//endfor k
 						dup.numOnsets=dup.fmt1IDs.size();
 						duplicateOnsets.push_back(dup);
 					}//endif
 				}//endfor p
-				indecesPerPitch.clear();
-				indecesPerPitch.resize(128);
+				indicesPerPitch.clear();
+				indicesPerPitch.resize(128);
 			}//endif
 
 			if(evts[i].eventtype!="chord"){continue;}
 
 			for(int j=0;j<evts[i].numNotes;j+=1){
 				vi[0]=i; vi[1]=j;
-				indecesPerPitch[SitchToPitch(evts[i].sitches[j].substr(0,evts[i].sitches[j].find(",")))].push_back(vi);
+				indicesPerPitch[SitchToPitch(evts[i].sitches[j].substr(0,evts[i].sitches[j].find(",")))].push_back(vi);
 			}//endfor j
 
 		}//endfor i
 
 		for(int p=0;p<128;p+=1){
-			if(indecesPerPitch[p].size()>1){
-				dup.stime=evts[indecesPerPitch[p][0][0]].stime;
-				dup.sitch=evts[indecesPerPitch[p][0][0]].sitches[indecesPerPitch[p][0][1]];
+			if(indicesPerPitch[p].size()>1){
+				dup.stime=evts[indicesPerPitch[p][0][0]].stime;
+				dup.sitch=evts[indicesPerPitch[p][0][0]].sitches[indicesPerPitch[p][0][1]];
 				dup.fmt1IDs.clear();
-				for(int k=indecesPerPitch[p].size()-1;k>=0;k-=1){
-					dup.fmt1IDs.push_back(evts[indecesPerPitch[p][k][0]].fmt1IDs[indecesPerPitch[p][k][1]]);
+				for(int k=indicesPerPitch[p].size()-1;k>=0;k-=1){
+					dup.fmt1IDs.push_back(evts[indicesPerPitch[p][k][0]].fmt1IDs[indicesPerPitch[p][k][1]]);
 				}//endfor k
 				dup.numOnsets=dup.fmt1IDs.size();
 				duplicateOnsets.push_back(dup);

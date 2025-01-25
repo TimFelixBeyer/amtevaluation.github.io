@@ -11,7 +11,7 @@ from pathlib import Path
 from music21 import musicxml, note, stream
 
 MUSTER_BIN = Path(__file__).resolve().parent / "evaluate_XML_voicePlus.sh"
-EMPTY_SCORE = {'PitchER': None, 'MissRate': None, 'ExtraRate': None, 'OnsetER': None, 'OffsetER': None, 'MeanER': None, 'VoiceER': None, 'NewMeanER': None, 'Pvoi': None, 'Rvoi': None, 'Fvoi': None, 'ScaleErr': None, 'HandER': None}
+EMPTY_SCORES = {'PitchER': None, 'MissRate': None, 'ExtraRate': None, 'OnsetER': None, 'OffsetER': None, 'MeanER': None, 'VoiceER': None, 'NewMeanER': None, 'Pvoi': None, 'Rvoi': None, 'Fvoi': None, 'ScaleErr': None, 'HandER': None}
 
 
 def postprocess_score(mxl: stream.Score) -> stream.Score:
@@ -27,14 +27,8 @@ def postprocess_score(mxl: stream.Score) -> stream.Score:
     for part in mxl.parts:
         measures: list[stream.Measure] = list(part.getElementsByClass("Measure"))
         for m in measures:
-            voices = list(m.getElementsByClass("Voice"))
-            non_empty_voices = [voice for voice in voices if len(voice.notes) > 0]
-            if non_empty_voices:  # we can remove all voices that only contain a rest
-                for v in voices:
-                    if v not in non_empty_voices:
-                        m.remove(v)
-            else:  # we can remove all but the first voice
-                for v in voices[1:]:
+            for v in list(m.getElementsByClass("Voice")):
+                if not v.notes:
                     m.remove(v)
             # pad non-full measures with rests
             for j, v in enumerate(m.getElementsByClass("Voice")):
@@ -48,6 +42,7 @@ def postprocess_score(mxl: stream.Score) -> stream.Score:
 
             if not list(m.getElementsByClass("Voice")):
                 v = stream.Voice()
+                v.id = "1"
                 rest = note.Rest(quarterLength=m.barDuration.quarterLength)
                 v.append(rest.splitAtDurations())
                 m.insert(0, v)
@@ -79,7 +74,7 @@ def muster(
             handle_score_file(score_gt, tmpdir + "/gt.xml", clean_scores)
         except ValueError as e:
             print(e)
-            return EMPTY_SCORE
+            return EMPTY_SCORES
         subprocess.run(
             [MUSTER_BIN, tmpdir + "/gt", tmpdir + "/est", tmpdir + "/out"],
             stdout=subprocess.DEVNULL,
@@ -88,13 +83,13 @@ def muster(
             with open(tmpdir + "/out.txt") as f:
                 lines = f.readlines()
         except FileNotFoundError as e:
-            return EMPTY_SCORE
+            return EMPTY_SCORES
     try:
         d = parse_line_to_dict(lines[0])
     except ValueError as e:
         print(lines)
         print(e, lines[0])
-        return EMPTY_SCORE
+        return EMPTY_SCORES
     return d
 
 
